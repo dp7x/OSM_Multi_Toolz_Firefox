@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "OSM Changeset Analyzer",
+  "version": "1.40",
+  "description": "Analizza changeset di OpenStreetMap con link rapidi a OSMCha, Achavi, OSMViz e altri strumenti.",
+  
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "permissions": ["tabs", "clipboardWrite"],
+
+  "host_permissions": [
+    "https://api.openstreetmap.org/*",
+    "https://*.osmcha.org/*",
+    "https://*.overpass-api.de/*",
+    "https://*.neis-one.org/*",
+    "https://tools.geofabrik.de/*",
+    "https://mc.bbbike.org/*"
+  ],
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "osm-changeset-analyzer@example.com",
+      "strict_min_version": "109.0"
+    }
+  }
+}
