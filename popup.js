@@ -145,6 +145,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 dateHtml = `<p style="color:orange;"><b>${L.changesetDate}:</b> ${createdStr}</p>`;
             }
 
+			// translate comment
+			const userLang = navigator.language.split('-')[0] || 'en'; //browser language
+			const encodedComment = encodeURIComponent(comment || "");
+			const translateLink = `https://translate.google.com/?sl=auto&tl=${userLang}&text=${encodedComment}`;
+
+
             // --- HTML CONSTRUCTION DETAILS ---
 			let html = `
 			<p><b>${L.user}:</b> ${user} (<strong>${changesetCount}</strong>)
@@ -160,7 +166,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 				<span title="${L.traces}">🛰️ ${tracesCount}</span>
 			</p>
 
-			<p><b>${L.comment}:</b> ${comment || L.missingComment}</p>
+			<p>
+			  <b>${L.comment}:</b> ${comment || L.missingComment} 
+			  ${comment ? `<a href="${translateLink}" target="_blank" title="Translate comment">🌐</a>` : ''}
+			</p>
+
 			<p><b>${L.editor || "Editor"}:</b> ${editor || L.missingEditor || "-"}</p>
 
 			${dateHtml}
