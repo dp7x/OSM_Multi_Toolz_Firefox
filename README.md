@@ -4,6 +4,8 @@
 
 <img alt="OSM Multi Toolz" src="https://github.com/dp7x/OSM_Multi_Toolz_chrome/blob/main/readme/osmmultitoolz.png" />
 
+## You can find the packed extension, ready to install on your browser, at the Chrome Web Store. Click here to [Download](https://addons.mozilla.org/it/firefox/addon/osm-changeset-analyzer/) ##
+
 ---
 
 ## Features
