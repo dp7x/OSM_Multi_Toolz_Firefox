@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>OSM Changeset Watchlist</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      font-size: 18px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+    }
+    .watchlist-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      border-left: 3px solid #4CAF50;
+      font-size: 13px;
+    }
+    .watchlist-item:hover {
+      background: #e9ecef;
+    }
+    .watchlist-info {
+      flex: 1;
+    }
+    .changeset-id {
+      font-weight: bold;
+      color: #333;
+    }
+    .changeset-user {
+      color: #666;
+      margin: 2px 0;
+    }
+    .changeset-comment {
+      color: #888;
+      font-style: italic;
+      font-size: 12px;
+    }
+    .watchlist-links {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .watchlist-item a {
+      text-decoration: none;
+      color: #0066cc;
+    }
+    .watchlist-item a:hover {
+      text-decoration: underline;
+    }
+    .removeBtn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 11px;
+      transition: background 0.2s;
+    }
+    .removeBtn:hover {
+      background: #c82333;
+    }
+    .export-btn {
+      margin: 10px 0;
+      padding: 8px 16px;
+      background: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.2s;
+    }
+    .export-btn:hover {
+      background: #3367d6;
+    }
+    .watchlist-count {
+      margin: 15px 0;
+      padding: 12px;
+      background: #e3f2fd;
+      border-radius: 4px;
+      font-size: 14px;
+      text-align: center;
+    }
+    .import-btn {
+      margin: 6px 3px;
+      padding: 8px 16px;
+      background: #34a853;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.2s;
+    }
+    .import-btn:hover {
+      background: #2e8b47;
+    }
+    .buttons-container {
+      margin: 20px 0;
+      text-align: center;
+    }
+    .empty-message {
+      text-align: center;
+      color: #666;
+      font-style: italic;
+      padding: 40px;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+    .summary {
+      background: #e3f2fd;
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-size: 14px;
+      text-align: center;
+    }
+	.changeset-date {
+      font-size: 11px;
+      color: #666;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🔭 OSM Changeset Watchlist</h2>
+    <div id="watchlist"></div>
+  </div>
+  <script src="watchlist.js"></script>
+</body>
+</html>

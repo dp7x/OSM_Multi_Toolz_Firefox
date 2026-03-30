@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Relation Analyzer - Changeset</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .relation-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .relation-item {
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 3px solid #4CAF50;
+        }
+        .relation-item.modified {
+            border-left-color: #FF9800;
+        }
+        .relation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .relation-id {
+            font-weight: bold;
+            color: #333;
+        }
+        .relation-type {
+            background: #6c757d;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        .relation-action {
+            background: #4CAF50;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        .relation-action.modified {
+            background: #FF9800;
+        }
+        .relation-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+        }
+        .relation-link {
+            color: #0066cc;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        .relation-link:hover {
+            text-decoration: underline;
+        }
+        .separator {
+            color: #999;
+        }
+        .empty-message {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px;
+        }
+        .summary {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="title">Relation Analyzer</h1>
+        <div id="summary" class="summary"></div>
+        <ul id="relationList" class="relation-list"></ul>
+    </div>
+    <script src="relations.js"></script>
+</body>
+</html>

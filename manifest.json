@@ -1,8 +1,15 @@
 {
   "manifest_version": 3,
   "name": "OSM Changeset Analyzer",
-  "version": "1.40",
+  "version": "1.90",
   "description": "Analizza changeset di OpenStreetMap con link rapidi a OSMCha, Achavi, OSMViz e altri strumenti.",
+  
+  "web_accessible_resources": [
+    {
+      "resources": ["watchlist.html", "watchlist.js", "taginfo.html", "taginfo.js", "relations.html", "relations.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],	
   
   "action": {
     "default_popup": "popup.html",
@@ -14,7 +21,7 @@
     }
   },
 
-  "permissions": ["tabs", "clipboardWrite"],
+  "permissions": ["tabs", "clipboardWrite", "storage"],
 
   "host_permissions": [
     "https://api.openstreetmap.org/*",

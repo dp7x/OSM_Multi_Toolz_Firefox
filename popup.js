@@ -6,6 +6,9 @@ async function loadLocale() {
     return await res.json();
 }
 
+// --- Global variable storing the current user ---
+let currentUser = "";
+
 document.addEventListener('DOMContentLoaded', async () => {
     const L = await loadLocale();
 
@@ -30,6 +33,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('osmoseBtn').textContent = L.btn_osmose;
     document.getElementById('osminspectorBtn').textContent = L.btn_osminspector;
     document.getElementById('mapcompareBtn').textContent = L.btn_mapcompare;
+    document.getElementById('losmeBtn').textContent = L.btn_losme;
+    document.getElementById('taginfoBtn').textContent = L.btn_taginfo || "TagInfo"; 
+	document.getElementById('relationAnalyzerBtn').textContent = L.btn_relation_analyzer; 	
 
     // --- Functions ---
     async function resolveChangesetFromObject(type, objId) {
@@ -91,6 +97,147 @@ document.addEventListener('DOMContentLoaded', async () => {
 				const year = d.getFullYear();
 				return `${day}/${month}/${year}`;
 			}
+
+	// --- Function to get modified tags from changeset ---
+	async function getModifiedTags(changesetId) {
+		try {
+			// Get changeset details to find modified elements
+			const response = await fetch(`https://api.openstreetmap.org/api/0.6/changeset/${changesetId}/download`);
+			const xmlText = await response.text();
+			const parser = new DOMParser();
+			const xml = parser.parseFromString(xmlText, "application/xml");
+
+			const createdTags = new Map();
+			const modifiedTags = new Map();
+			
+			// Process CREATED elements (brand new objects)
+			const createElements = xml.querySelectorAll('create > *');
+			createElements.forEach(element => {
+				const tags = element.querySelectorAll('tag');
+				tags.forEach(tag => {
+					const k = tag.getAttribute("k");
+					const v = tag.getAttribute("v");
+					if (k && v) {
+						const tagStr = `${k}=${v}`;
+						createdTags.set(tagStr, (createdTags.get(tagStr) || 0) + 1);
+					}
+				});
+			});
+
+			// Process MODIFIED elements (pre-existing objects that were changed)
+			const modifyElements = xml.querySelectorAll('modify > *');
+			modifyElements.forEach(element => {
+				const tags = element.querySelectorAll('tag');
+				tags.forEach(tag => {
+					const k = tag.getAttribute("k");
+					const v = tag.getAttribute("v");
+					if (k && v) {
+						const tagStr = `${k}=${v}`;
+						modifiedTags.set(tagStr, (modifiedTags.get(tagStr) || 0) + 1);
+					}
+				});
+			});
+
+			// Combine both maps into a single array with type information
+			const allTags = [];
+			
+			// Add created tags
+			createdTags.forEach((count, tagStr) => {
+				const [key, ...valueParts] = tagStr.split('=');
+				const value = valueParts.join('=');
+				allTags.push({ 
+					key, 
+					value, 
+					full: tagStr, 
+					count, 
+					type: 'created',
+					typeLabel: 'New'
+				});
+			});
+
+			// Add modified tags
+			modifiedTags.forEach((count, tagStr) => {
+				const [key, ...valueParts] = tagStr.split('=');
+				const value = valueParts.join('=');
+				allTags.push({ 
+					key, 
+					value, 
+					full: tagStr, 
+					count, 
+					type: 'modified',
+					typeLabel: 'Modified'
+				});
+			});
+
+			// Sort: first by type (created first), then by count (descending), then by key (ascending)
+			const sortedTags = allTags.sort((a, b) => {
+				// First by type: created before modified
+				if (a.type !== b.type) {
+					return a.type === 'created' ? -1 : 1;
+				}
+				// Then by count (descending)
+				if (b.count !== a.count) {
+					return b.count - a.count;
+				}
+				// Then by key (ascending)
+				return a.key.localeCompare(b.key);
+			});
+
+			return sortedTags;
+
+		} catch (err) {
+			console.error("Error getting modified tags:", err);
+			// Fallback: return changeset tags if we can't get modified ones
+			const changesetTags = await getChangesetTags(changesetId);
+			// Add count=1 and type='unknown' for fallback tags
+			return changesetTags.map(tag => ({ 
+				...tag, 
+				count: 1, 
+				type: 'unknown',
+				typeLabel: 'Unknown'
+			}));
+		}
+	}
+	
+	// --- Function to get relations from changeset ---
+	async function getChangesetRelations(changesetId) {
+		try {
+			const response = await fetch(`https://api.openstreetmap.org/api/0.6/changeset/${changesetId}/download`);
+			const xmlText = await response.text();
+			const parser = new DOMParser();
+			const xml = parser.parseFromString(xmlText, "application/xml");
+
+			const relations = {
+				created: [],
+				modified: []
+			};
+
+			// Process created relations
+			const createdRelations = xml.querySelectorAll('create > relation');
+			createdRelations.forEach(relation => {
+				const id = relation.getAttribute('id');
+				const typeTag = relation.querySelector('tag[k="type"]');
+				const type = typeTag ? typeTag.getAttribute('v') : 'unknown';
+				relations.created.push({ id, type, action: 'created' });
+			});
+
+			// Process modified relations  
+			const modifiedRelations = xml.querySelectorAll('modify > relation');
+			modifiedRelations.forEach(relation => {
+				const id = relation.getAttribute('id');
+				const typeTag = relation.querySelector('tag[k="type"]');
+				const type = typeTag ? typeTag.getAttribute('v') : 'unknown';
+				relations.modified.push({ id, type, action: 'modified' });
+			});
+
+			return relations;
+
+		} catch (err) {
+			console.error("Error getting changeset relations:", err);
+			return { created: [], modified: [] };
+		}
+	}
+	
 
  			// --- Retrieve user info (changeset count, account_created, traces) ---
 			let changesetCount = "?";
@@ -226,6 +373,53 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if(tooOld) alert(L.alertOldChangeset);
                 openTab(`https://mc.bbbike.org/mc/?lon=${centerLon}&lat=${centerLat}&zoom=15`);
             };
+			document.getElementById('losmeBtn').onclick = () => {
+                if (tooOld) alert("This changeset is too old, LOSMET may not display it correctly..");
+                openTab(`https://resultmaps.neis-one.org/osm-edits-tile/#14/${centerLat}/${centerLon}`);
+            };
+			
+			// --- TagInfo Button ---
+			document.getElementById('taginfoBtn').onclick = async () => {
+				const tags = await getModifiedTags(changesetId);
+				browser.tabs.create({
+					url: browser.runtime.getURL('taginfo.html')
+				});
+				// Invia i dati dopo un delay
+				setTimeout(() => {
+					browser.tabs.query({}, (tabs) => {
+						browser.tabs.sendMessage(tabs[tabs.length - 1].id, {
+							action: 'loadTags',
+							tags: tags,
+							changesetId: changesetId
+						});
+					});
+				}, 500);
+			};
+
+			// --- Relation Analyzer Button ---
+			document.getElementById('relationAnalyzerBtn').onclick = async () => {
+				const relations = await getChangesetRelations(changesetId);
+				browser.tabs.create({
+					url: browser.runtime.getURL('relations.html')
+				});
+				// Invia i dati dopo un delay
+				setTimeout(() => {
+					browser.tabs.query({}, (tabs) => {
+						browser.tabs.sendMessage(tabs[tabs.length - 1].id, {
+							action: 'loadRelations',
+							relations: relations,
+							changesetId: changesetId
+						});
+					});
+				}, 500);
+			};
+
+			// --- Watchlist Button ---
+			document.getElementById('openWatchlistBtn').addEventListener('click', () => {
+				browser.tabs.create({
+					url: browser.runtime.getURL('watchlist.html')
+				});
+			});
 
         } catch (err) {
             alertsDiv.innerHTML = `<p style="color:red">Error getting data</p>`;
@@ -255,5 +449,45 @@ document.addEventListener('DOMContentLoaded', async () => {
             await renderChangeset(manualId);
         }
     });
+	
+	// === Watchlist buttons ===
+	document.getElementById("addToWatchlistBtn").title = L.btn_addWatchlist;
+	document.getElementById("openWatchlistBtn").title = L.btn_openWatchlist;
+
+	document.getElementById("addToWatchlistBtn").addEventListener("click", async () => {
+		const changesetId = changesetInput.value.trim();
+		if (!changesetId) {
+			alert(L.alert_noChangeset);
+			return;
+		}
+
+		const link = `https://www.openstreetmap.org/changeset/${changesetId}`;
+		const user = currentUser || "—";
+
+		const commentEl = document.querySelector("#details p:nth-of-type(4)")?.innerText || "";
+		const comment = commentEl.replace(/^Comment:\s*/i, "").trim() || "—";
+
+		const { watchlist = [] } = await browser.storage.local.get("watchlist");
+
+		// Duplicates control
+		if (watchlist.some(entry => entry.id === changesetId)) {
+			alert(L.alert_watchlistExists);
+			return;
+		}
+
+		// Create new entry WITH DATE
+		const newEntry = {
+			id: changesetId,
+			user: user,
+			comment: comment,
+			link: link,
+			addedDate: new Date().toISOString()
+		};
+
+		watchlist.push(newEntry);
+		await browser.storage.local.set({ watchlist });
+
+		alert(L.alert_watchlistAdded);
+	});
 
 });
