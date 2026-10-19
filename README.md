@@ -2,6 +2,8 @@
 
 A Firefox extension for inspecting OpenStreetMap changesets and accessing mapping and quality assurance tools. **Version 2.0** adds a viewer for deleted objects.
 
+<img alt="OSM Multi Toolz" src="https://github.com/dp7x/OSM_Multi_Toolz_Chrome/blob/main/readme/osmmultitoolz.png" />
+
 [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/osm-changeset-analyzer/)
 
 ## Features
