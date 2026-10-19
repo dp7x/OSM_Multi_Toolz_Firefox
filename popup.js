@@ -37,10 +37,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('taginfoBtn').textContent = L.btn_taginfo || "TagInfo"; 
 	document.getElementById('relationAnalyzerBtn').textContent = L.btn_relation_analyzer; 	
 
+    document.getElementById("deletedObjectsBtn").textContent = L.deleted_button;
+
     // --- Functions ---
     async function resolveChangesetFromObject(type, objId) {
         try {
             const res = await fetch(`https://api.openstreetmap.org/api/0.6/${type}/${objId}`);
+            if (res.status === 410) {
+                const history = await fetch(`https://api.openstreetmap.org/api/0.6/${type}/${objId}/history`);
+                if (!history.ok) throw new Error(`OSM API: HTTP ${history.status}`);
+                const doc = new DOMParser().parseFromString(await history.text(), "application/xml");
+                return Array.from(doc.querySelectorAll(type)).at(-1)?.getAttribute("changeset") || null;
+            }
+            if (!res.ok) throw new Error(`OSM API: HTTP ${res.status}`);
             const xmlText = await res.text();
             const xml = new DOMParser().parseFromString(xmlText, "application/xml");
             const el = xml.querySelector(type);
@@ -53,7 +62,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function renderChangeset(changesetId) {
-        if (!changesetId) return;
+        if (!/^[1-9]\d*$/.test(String(changesetId))) return;
+        const deletedButton = document.getElementById('deletedObjectsBtn');
+        deletedButton.disabled = true;
+        deletedButton.onclick = null;
 
         changesetInput.value = changesetId;
 
@@ -346,6 +358,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             const centerLon = (minlon + maxlon) / 2;
 
             // --- Pulsanti ---
+            deletedButton.disabled = false;
+            deletedButton.onclick = () => browser.windows.create({
+                url: browser.runtime.getURL(`deleted.html?changeset=${changesetId}`),
+                type: 'popup', width: 650, height: 620
+            });
+
             const openTab = (link) => browser.tabs.create({ url: link });
 
             document.getElementById('osmoseBtn').onclick = () => {

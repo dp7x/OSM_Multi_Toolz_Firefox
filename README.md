@@ -4,11 +4,18 @@
 
 <img alt="OSM Multi Toolz" src="https://github.com/dp7x/OSM_Multi_Toolz_chrome/blob/main/readme/osmmultitoolz.png" />
 
-## You can find the packed extension, ready to install on your browser, at the Chrome Web Store. Click here to [Download](https://addons.mozilla.org/it/firefox/addon/osm-changeset-analyzer/) ##
+## You can find the packed extension, ready to install on your browser, on Firefox Add-ons. Click here to [Download](https://addons.mozilla.org/it/firefox/addon/osm-changeset-analyzer/) ##
 
 ---
 
 ## Features
+
+### Deleted objects (2.0)
+
+The **Deleted objects** button opens a list of ways and standalone nodes deleted in the selected changeset. Click an entry to open a map tab with the last available visible version before that deletion and all its tags. Vertices of listed ways are hidden. The viewer includes loading indicators, historical node coordinates, identified OSM tile requests and partial-geometry warnings. Deleted relations are not supported yet.
+
+The viewer is read-only. Leaflet is bundled locally; see `THIRD_PARTY_NOTICES.md`. Italian installation and test notes: `LEGGIMI_2.0.md`.
+
 
 - Automatic detection of the changeset from the current OSM page  
 - Display user details:  

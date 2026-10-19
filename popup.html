@@ -57,6 +57,7 @@
             transition: background-color 0.2s ease;
             margin-top: 8px;
         }
+        button:disabled { opacity: 0.5; cursor: default; }
         button:hover {
             background-color: #0056b3;
         }
@@ -149,7 +150,8 @@
     <button id="mapcompareBtn">Apri in Map Compare</button>
 	<button id="losmeBtn">Apri in LOSMET</button>
     <button id="taginfoBtn">Apri TagInfo</button>
-    <button id="relationAnalyzerBtn">Apri Relation Analyzer</button>	
+    <button id="relationAnalyzerBtn">Apri Relation Analyzer</button>
+    <button id="deletedObjectsBtn" disabled>Deleted objects</button>
 
     <div class="credits">
         <h5>&copy; 2025 <strong>dp7</strong>@<a href="https://www.openstreetmap.org/user/dp7" target="_blank">OpenStreetMap</a><br>Licensed under the <a href="https://opensource.org/licenses/MIT" target="_blank">MIT License</a></h5>

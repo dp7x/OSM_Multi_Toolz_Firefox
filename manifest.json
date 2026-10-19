@@ -1,16 +1,23 @@
 {
   "manifest_version": 3,
   "name": "OSM Changeset Analyzer",
-  "version": "1.90",
+  "version": "2.0",
   "description": "Analizza changeset di OpenStreetMap con link rapidi a OSMCha, Achavi, OSMViz e altri strumenti.",
-  
   "web_accessible_resources": [
     {
-      "resources": ["watchlist.html", "watchlist.js", "taginfo.html", "taginfo.js", "relations.html", "relations.js"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "watchlist.html",
+        "watchlist.js",
+        "taginfo.html",
+        "taginfo.js",
+        "relations.html",
+        "relations.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
-  ],	
-  
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -20,25 +27,26 @@
       "128": "icons/icon128.png"
     }
   },
-
-  "permissions": ["tabs", "clipboardWrite", "storage"],
-
+  "permissions": [
+    "tabs",
+    "clipboardWrite",
+    "storage"
+  ],
   "host_permissions": [
     "https://api.openstreetmap.org/*",
     "https://*.osmcha.org/*",
     "https://*.overpass-api.de/*",
     "https://*.neis-one.org/*",
     "https://tools.geofabrik.de/*",
-    "https://mc.bbbike.org/*"
+    "https://mc.bbbike.org/*",
+    "https://tile.openstreetmap.org/*"
   ],
-
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-
   "browser_specific_settings": {
     "gecko": {
       "id": "osm-changeset-analyzer@example.com",

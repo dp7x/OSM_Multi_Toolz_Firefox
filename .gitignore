@@ -1,0 +1,33 @@
+# Pacchetti generati per Chrome e Firefox
+*.zip
+*.xpi
+*.crx
+
+# Dipendenze e output degli strumenti di sviluppo
+node_modules/
+web-ext-artifacts/
+coverage/
+
+# Impostazioni locali e credenziali
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Editor
+.vscode/
+.idea/
+*.code-workspace
+
+# File temporanei, log e backup
+*.log
+*.tmp
+*.temp
+*.bak
+*~
+
+# File generati dal sistema operativo
+.DS_Store
+Thumbs.db
+Desktop.ini

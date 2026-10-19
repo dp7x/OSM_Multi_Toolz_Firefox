@@ -1,0 +1,12 @@
+* {box-sizing:border-box} body {margin:0;font:15px/1.5 system-ui,sans-serif;color:#263238;background:#f5f5f5} header {padding:16px 22px;background:white;border-bottom:1px solid #ddd} h1 {font-size:22px;margin:0 0 6px;color:#388e3c} a {color:#006fc4} main {padding:10px 22px 24px} #objects {list-style:none;margin:0;padding:0} #objects li {background:white;margin:10px 0;padding:14px;border:1px solid #ddd;border-radius:6px;overflow-wrap:anywhere} .object-link {font-size:16px;font-weight:600} .description {margin-top:6px;color:#536169} .error {color:#a52620} #note {color:#59666c;font-size:13px} button {background:#007bff;color:white;padding:8px 14px;border:0;border-radius:5px;cursor:pointer} button:disabled {opacity:.6;cursor:wait} #retry {margin-bottom:10px} .map-page {height:100vh;display:flex;flex-direction:column} .map-page header {flex-shrink:0} .map-layout {flex:1;display:flex;min-height:0} #map {flex:1;min-width:0;min-height:260px;background:#e6e9e7} aside {width:340px;overflow:auto;background:white;padding:14px 18px} #status {overflow-wrap:anywhere} table {border-collapse:collapse;width:100%;font-size:13px} td {border-bottom:1px solid #ddd;vertical-align:top;padding:7px 4px;overflow-wrap:anywhere;max-width:180px} td:first-child {font-weight:600} #metadata {font-size:13px} .leaflet-popup-content {max-height:260px;overflow:auto;overflow-wrap:anywhere} @media(max-width:700px) {.map-layout {flex-direction:column;overflow:auto} #map {flex:none;height:55vh} aside {width:auto;overflow:visible} }
+
+/* Visible before scripts, translations, or historical API responses arrive. */
+#map {position:relative}
+#map-loading {position:absolute;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:#edf2ef;pointer-events:auto}
+#map-loading[hidden] {display:none}
+.loading-card {display:flex;flex-direction:column;align-items:center;gap:18px;padding:30px;text-align:center;color:#286535;font-size:18px}
+.loading-spinner,.is-loading #status::before {display:inline-block;width:36px;height:36px;border:4px solid #c9ddcd;border-top-color:#388e3c;border-radius:50%;animation:loading-turn .85s linear infinite}
+.is-loading #status {display:flex;align-items:center;gap:12px}
+.is-loading #status::before {content:"";width:20px;height:20px;border-width:3px;flex-shrink:0}
+@keyframes loading-turn {to {transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce) {.loading-spinner,.is-loading #status::before {animation:none}}
