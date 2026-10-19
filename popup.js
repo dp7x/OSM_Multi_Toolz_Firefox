@@ -1,3 +1,4 @@
+const UI = MultiToolzUI;
 // --- Localization ---
 async function loadLocale() {
     let lang = navigator.language.slice(0, 2).toLowerCase(); // primi due caratteri
@@ -8,6 +9,7 @@ async function loadLocale() {
 
 // --- Global variable storing the current user ---
 let currentUser = "";
+let currentComment = "";
 
 document.addEventListener('DOMContentLoaded', async () => {
     const L = await loadLocale();
@@ -79,16 +81,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const commentCount = parseInt(cs.getAttribute("comments_count"), 10) || 0;
 
-            changesetIdSpan.innerHTML = `
-                <a href="https://www.openstreetmap.org/changeset/${changesetId}" target="_blank">${changesetId}</a>
-                ${commentCount > 0 ? `<a href="https://www.openstreetmap.org/changeset/${changesetId}#comments" target="_blank" style="margin-left: 10px; text-decoration: none; color: inherit;">💬 ${commentCount}</a>` : ''}
-            `;
+            changesetIdSpan.replaceChildren(UI.link(changesetId, `https://www.openstreetmap.org/changeset/${changesetId}`));
+            if (commentCount > 0) {
+                const discussion = UI.link(`💬 ${commentCount}`, `https://www.openstreetmap.org/changeset/${changesetId}#comments`);
+                discussion.style.marginLeft = '10px'; changesetIdSpan.append(discussion);
+            }
 
             const user = cs.getAttribute("user");
+            currentUser = user || "—";
             const uid = cs.getAttribute("uid");
             const createdAt = new Date(cs.getAttribute("created_at"));
             const createdStr = createdAt.toLocaleString();
             const comment = cs.querySelector('tag[k="comment"]')?.getAttribute("v") || "";
+            currentComment = comment;
 			const editor = cs.querySelector('tag[k="created_by"]')?.getAttribute("v") || "";
             const minlat = parseFloat(cs.getAttribute("min_lat"));
             const maxlat = parseFloat(cs.getAttribute("max_lat"));
@@ -284,63 +289,38 @@ document.addEventListener('DOMContentLoaded', async () => {
 				console.error("Error getting user info:", err);
 			}
 
-            // --- ALERTS ---
-            alertsDiv.innerHTML = "";
-            if (!comment) alertsDiv.innerHTML += `<p>${L.alertNoComment}</p>`;
-            if (latDiff > 1 || lonDiff > 1) alertsDiv.innerHTML += `<p>${L.alertLargeArea}</p>`;
-            const changesCount = cs.getAttribute("num_changes") || "?";
+            // Build the interface using text nodes for all API values.
+            alertsDiv.replaceChildren();
+            const addAlert = text => alertsDiv.append(UI.node('p', text));
+            if (!comment) addAlert(L.alertNoComment);
+            if (latDiff > 1 || lonDiff > 1) addAlert(L.alertLargeArea);
+            const changesCount = cs.getAttribute('changes_count') || cs.getAttribute('num_changes') || '?';
             if (!isNaN(changesCount)) {
-                if (changesCount < 10) alertsDiv.innerHTML += `<p>${L.alertSmallChangeset}</p>`;
-                else if (changesCount > 5000) alertsDiv.innerHTML += `<p>${L.alertHugeChangeset}</p>`;
+                if (changesCount < 10) addAlert(L.alertSmallChangeset);
+                else if (changesCount > 5000) addAlert(L.alertHugeChangeset);
             }
-
-            const now = new Date();
-            const ageYears = (now - createdAt) / (1000*60*60*24*365);
-            let tooOld = false;
-            let dateHtml = `<p><b>${L.changesetDate}:</b> ${createdStr}</p>`;
-            if (ageYears > 2) {
-                alertsDiv.innerHTML += `<p>${L.alertOldChangeset}</p>`;
-                tooOld = true;
-                dateHtml = `<p style="color:orange;"><b>${L.changesetDate}:</b> ${createdStr}</p>`;
+            const ageYears = (new Date() - createdAt) / (1000*60*60*24*365);
+            const tooOld = ageYears > 2;
+            if (tooOld) addAlert(L.alertOldChangeset);
+            const translateLink = `https://translate.google.com/?sl=auto&tl=${encodeURIComponent(navigator.language.split('-')[0] || 'en')}&text=${encodeURIComponent(comment)}`;
+            const userRow = UI.field(L.user, `${user} (`, UI.node('strong', changesetCount), ') ',
+                UI.link(L.osmProfile, `https://www.openstreetmap.org/user/${encodeURIComponent(user)}`), ' | ',
+                UI.link(L.hdyc, `https://hdyc.neis-one.org/?${encodeURIComponent(user)}`), ' | ',
+                UI.link(L.message, `https://www.openstreetmap.org/messages/new/${encodeURIComponent(user)}`));
+            const icons = UI.node('p', null, 'details-icons');
+            for (const [title, value] of [[L.mapperSince, `⏳ ${mapperSinceStr}`], [L.lastEdit, `🕒 ${lastEditStr}`], [L.traces, `🛰️ ${tracesCount}`]]) {
+                if (icons.childNodes.length) icons.append(' | ');
+                const span = UI.node('span', value); span.title = title; icons.append(span);
             }
-
-			// translate comment
-			const userLang = navigator.language.split('-')[0] || 'en'; //browser language
-			const encodedComment = encodeURIComponent(comment || "");
-			const translateLink = `https://translate.google.com/?sl=auto&tl=${userLang}&text=${encodedComment}`;
-
-
-            // --- HTML CONSTRUCTION DETAILS ---
-			let html = `
-			<p><b>${L.user}:</b> ${user} (<strong>${changesetCount}</strong>)
-				<a href="https://www.openstreetmap.org/user/${encodeURIComponent(user)}" target="_blank">${L.osmProfile}</a> |
-				<a href="https://hdyc.neis-one.org/?${encodeURIComponent(user)}" target="_blank">${L.hdyc}</a> |
-				<a href="https://www.openstreetmap.org/messages/new/${encodeURIComponent(user)}" target="_blank">${L.message}</a>
-			</p>
-
-			<!-- Icons -->
-			<p class="details-icons">
-				<span title="${L.mapperSince}">⏳ ${mapperSinceStr}</span> &nbsp;|&nbsp;
-				<span title="${L.lastEdit}">🕒 ${lastEditStr}</span> &nbsp;|&nbsp;
-				<span title="${L.traces}">🛰️ ${tracesCount}</span>
-			</p>
-
-			<p>
-			  <b>${L.comment}:</b> ${comment || L.missingComment} 
-			  ${comment ? `<a href="${translateLink}" target="_blank" title="Translate comment">🌐</a>` : ''}
-			</p>
-
-			<p><b>${L.editor || "Editor"}:</b> ${editor || L.missingEditor || "-"}</p>
-
-			${dateHtml}
-
-			<p><b>${L.bbox}:</b>
-				<a href="${bboxLink}" target="_blank">${bboxStr}</a>
-				<a href="#" id="copyBbox" style="margin-left:8px; font-size:90%;">📋 ${L.copy}</a>
-			</p>
-			`;
-			
-            detailsDiv.innerHTML = html;
+            const commentRow = UI.field(L.comment, comment || L.missingComment);
+            if (comment) commentRow.append(' ', UI.link('🌐', translateLink, 'Translate comment'));
+            const dateRow = UI.field(L.changesetDate, createdStr);
+            if (tooOld) dateRow.style.color = 'orange';
+            const bboxRow = UI.field(L.bbox, UI.link(bboxStr, bboxLink));
+            const copy = UI.node('a', `📋 ${L.copy}`); copy.href = '#'; copy.id = 'copyBbox'; copy.style.marginLeft = '8px';
+            bboxRow.append(' ', copy);
+            detailsDiv.replaceChildren(userRow, icons, commentRow,
+                UI.field(L.editor || 'Editor', editor || L.missingEditor || '-'), dateRow, bboxRow);
 
             document.getElementById('copyBbox').addEventListener('click', (e) => {
                 e.preventDefault();
@@ -440,7 +420,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			});
 
         } catch (err) {
-            alertsDiv.innerHTML = `<p style="color:red">Error getting data</p>`;
+            const errorMessage = UI.node('p', 'Error getting data'); errorMessage.style.color = 'red'; alertsDiv.replaceChildren(errorMessage);
             console.error(err);
         }
     }
@@ -482,8 +462,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		const link = `https://www.openstreetmap.org/changeset/${changesetId}`;
 		const user = currentUser || "—";
 
-		const commentEl = document.querySelector("#details p:nth-of-type(4)")?.innerText || "";
-		const comment = commentEl.replace(/^Comment:\s*/i, "").trim() || "—";
+		const comment = currentComment || "—";
 
 		const { watchlist = [] } = await browser.storage.local.get("watchlist");
 

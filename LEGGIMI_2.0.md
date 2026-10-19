@@ -1,4 +1,10 @@
-# OSM MultiToolz 2.0 — Firefox
+# OSM MultiToolz 2.0.1 — Firefox
+
+## Correzione 2.0.1
+
+Eliminati gli inserimenti di HTML dinamico dal codice dell’estensione: popup, watchlist, TagInfo e relazioni usano elementi DOM e testo. Anche i dati importati dalla watchlist vengono trattati come testo e i collegamenti ai changeset vengono ricostruiti da ID numerici. Rimossa dal pacchetto la vecchia copia `OSM_Multi_Toolz.xpi.old`.
+
+Il validatore Mozilla locale riporta **0 errori e 8 avvisi**: sette appartengono alla libreria Leaflet 1.9.4 originale, uno riguarda la proprietà `data_collection_permissions` non ancora dichiarata. Non è stata inserita la dichiarazione `none`: l’assenza di telemetria non equivale all’assenza delle trasmissioni necessarie ai servizi richiesti dall’utente. Questa dichiarazione andrà definita correttamente per i requisiti Mozilla futuri. Non sono state aggiunte raccolta dati, nuove trasmissioni o richieste di consenso.
 
 ## Installazione e prova
 

@@ -1,3 +1,4 @@
+const UI = MultiToolzUI;
 // watchlist.js
 
 // --- Localization ---
@@ -93,17 +94,16 @@ async function loadWatchlist() {
   const L = await loadLocale();
   const { watchlist = [] } = await browser.storage.local.get("watchlist");
   const listDiv = document.getElementById("watchlist");
-  listDiv.innerHTML = "";
+  listDiv.replaceChildren();
 
   document.title = L.watchlist_title;
 
   // Add export/import buttons container
   const buttonsContainer = document.createElement("div");
   buttonsContainer.className = "buttons-container";
-  buttonsContainer.innerHTML = `
-    <button class="export-btn" id="exportBtn">${L.export_json}</button>
-    <button class="import-btn" id="importBtn">${L.import_json}</button>
-  `;
+  for (const [id, label, className] of [['exportBtn', L.export_json, 'export-btn'], ['importBtn', L.import_json, 'import-btn']]) {
+    const button = UI.node('button', label, className); button.id = id; buttonsContainer.append(button);
+  }
   
   listDiv.appendChild(buttonsContainer);
 
@@ -112,14 +112,14 @@ async function loadWatchlist() {
   document.getElementById("importBtn").addEventListener('click', importWatchlistJSON);
 
   if (watchlist.length === 0) {
-    listDiv.innerHTML += `<p>${L.watchlist_empty}</p>`;
+    listDiv.append(UI.node('p', L.watchlist_empty));
     return;
   }
 
   // Add items count
   const countDiv = document.createElement("div");
   countDiv.className = "watchlist-count";
-  countDiv.innerHTML = `<p><strong>${L.total_items}: ${watchlist.length}</strong></p>`;
+  const count = UI.node('p'); count.append(UI.node('strong', `${L.total_items}: ${watchlist.length}`)); countDiv.append(count);
   listDiv.appendChild(countDiv);
 
 	// Watchlist items
@@ -127,7 +127,7 @@ async function loadWatchlist() {
 		const item = document.createElement("div");
 		item.className = "watchlist-item";
 		
-		const cleanComment = entry.comment.replace('🌐', '').trim();
+		const cleanComment = String(entry.comment || '').replace('🌐', '').trim();
 		
 		// Formatta la data (se esiste, altrimenti usa data corrente per compatibilità)
 		let addedDate = "Unknown date";
@@ -135,21 +135,18 @@ async function loadWatchlist() {
 			addedDate = new Date(entry.addedDate).toLocaleDateString();
 		}
 		
-		item.innerHTML = `
-		  <div class="watchlist-info">
-			  <div class="changeset-id">
-				  <a href="${entry.link}" target="_blank">${entry.id}</a>
-			  </div>
-			  <div class="changeset-user"><b>${entry.user}</b></div>
-			  <div class="changeset-comment">${cleanComment}</div>
-			  <div class="changeset-date" style="font-size: 11px; color: #888; margin-top: 2px;">
-				  📅 ${addedDate}
-			  </div>
-		  </div>
-		  <div class="watchlist-links">
-			  <button class="removeBtn" title="${L.btn_remove || 'Remove'}">❌</button>
-		  </div>
-		`;
+        const info = UI.node('div', null, 'watchlist-info');
+        const idBox = UI.node('div', null, 'changeset-id');
+        const id = String(entry.id);
+        if (/^[1-9]\d*$/.test(id)) idBox.append(UI.link(id, `https://www.openstreetmap.org/changeset/${id}`));
+        else idBox.textContent = id;
+        const userBox = UI.node('div', null, 'changeset-user'); userBox.append(UI.node('b', entry.user));
+        const dateBox = UI.node('div', `📅 ${addedDate}`, 'changeset-date');
+        dateBox.style.cssText = 'font-size:11px;color:#888;margin-top:2px';
+        info.append(idBox, userBox, UI.node('div', cleanComment, 'changeset-comment'), dateBox);
+        const links = UI.node('div', null, 'watchlist-links');
+        const remove = UI.node('button', '❌', 'removeBtn'); remove.title = L.btn_remove || 'Remove'; links.append(remove);
+        item.append(info, links);
 
 		item.querySelector(".removeBtn").addEventListener("click", async () => {
 			if (confirm("Are you sure you want to remove this changeset from the watchlist?")) {

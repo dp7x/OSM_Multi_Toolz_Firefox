@@ -1,3 +1,4 @@
+const UI = MultiToolzUI;
 // taginfo.js
 
 let currentTags = [];
@@ -30,12 +31,10 @@ function applyTranslations(L) {
     // Translate controls
     const groupBySelect = document.getElementById('groupBy');
     if (groupBySelect && L.taginfo_group_none) {
-        groupBySelect.innerHTML = `
-            <option value="none">${L.taginfo_group_none}</option>
-            <option value="key">${L.taginfo_group_key}</option>
-            <option value="prefix">${L.taginfo_group_prefix}</option>
-            <option value="type">${L.taginfo_group_type}</option>
-        `;
+        groupBySelect.replaceChildren();
+        for (const [value, label] of [['none', L.taginfo_group_none], ['key', L.taginfo_group_key], ['prefix', L.taginfo_group_prefix], ['type', L.taginfo_group_type]]) {
+            const option = UI.node('option', label); option.value = value; groupBySelect.append(option);
+        }
     }
     
     const minCountLabel = document.querySelector('label[for="minCount"]');
@@ -77,7 +76,7 @@ function loadTags(tags, changesetId) {
     
     if (tags.length === 0) {
         const noTagsMsg = L.taginfo_no_tags || "No tags found";
-        tagList.innerHTML = `<li class="empty-message">${noTagsMsg}</li>`;
+        UI.empty(tagList, noTagsMsg);
         summary.textContent = L.taginfo_no_tags_found || "No tags found";
         return;
     }
@@ -151,7 +150,7 @@ function applyGroupingAndFilters() {
     const filteredTags = currentTags.filter(tag => tag.count >= currentMinCount);
     
     if (filteredTags.length === 0) {
-        tagList.innerHTML = `<li class="empty-message">${L.taginfo_no_tags_filtered || "No tags"}</li>`;
+        UI.empty(tagList, L.taginfo_no_tags_filtered || "No tags");
         return;
     }
     
@@ -164,14 +163,14 @@ function applyGroupingAndFilters() {
 }
 
 function renderUngrouped(tags, container) {
-    container.innerHTML = '';
+    container.replaceChildren();
     tags.forEach(tag => {
         container.appendChild(createTagElement(tag)); 
     });
 }
 
 function renderGroupedByKey(tags, container) {
-    const groups = {};
+    const groups = Object.create(null);
     tags.forEach(tag => {
         if (!groups[tag.key]) groups[tag.key] = [];
         groups[tag.key].push(tag);
@@ -180,7 +179,7 @@ function renderGroupedByKey(tags, container) {
 }
 
 function renderGroupedByPrefix(tags, container) {
-    const groups = {};
+    const groups = Object.create(null);
     tags.forEach(tag => {
         // Get also ":" if present
         let prefix = tag.key;
@@ -207,14 +206,14 @@ function renderGroupedByType(tags, container) {
 
 function renderGroups(groups, container, groupType) {
     const L = taginfoLocale || {};
-    container.innerHTML = '';
+    container.replaceChildren();
     
     const sortedGroups = Object.entries(groups)
         .filter(([_, items]) => items.length > 0)
         .sort(([_, a], [__, b]) => b.length - a.length);
     
     if (sortedGroups.length === 0) {
-        container.innerHTML = `<li class="empty-message">${L.taginfo_no_tags_filtered || "No tags"}</li>`;
+        UI.empty(container, L.taginfo_no_tags_filtered || "No tags");
         return;
     }
     
@@ -311,7 +310,7 @@ function createTagElement(tag) {
     // Tag text
     const tagText = document.createElement('span');
     tagText.className = 'tag-text';
-    tagText.innerHTML = `<span class="tag-key">${tag.key}</span><span class="tag-value">=${tag.value}</span>`;
+    tagText.append(UI.node('span', tag.key, 'tag-key'), UI.node('span', `=${tag.value}`, 'tag-value'));
     
     // Links 
     const links = document.createElement('div');
@@ -356,6 +355,6 @@ setTimeout(() => {
     const tagList = document.getElementById('tagList');
     if (tagList && tagList.children.length === 0) {
         const L = taginfoLocale || {};
-        tagList.innerHTML = `<li class="empty-message">${L.taginfo_load_error || "Load error"}</li>`;
+        UI.empty(tagList, L.taginfo_load_error || "Load error");
     }
 }, 2000);

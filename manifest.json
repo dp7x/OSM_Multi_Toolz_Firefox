@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "OSM Changeset Analyzer",
-  "version": "2.0",
+  "version": "2.0.1",
   "description": "Analizza changeset di OpenStreetMap con link rapidi a OSMCha, Achavi, OSMViz e altri strumenti.",
   "web_accessible_resources": [
     {

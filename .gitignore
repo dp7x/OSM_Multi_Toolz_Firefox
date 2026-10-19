@@ -31,3 +31,8 @@ coverage/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Copie obsolete dei pacchetti
+*.xpi.*
+*.zip.*
+*.crx.*

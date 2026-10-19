@@ -1,3 +1,4 @@
+const UI = MultiToolzUI;
 // relations.js
 let relationsLocale = {};
 
@@ -44,7 +45,7 @@ function loadRelations(relations, changesetId) {
     
     if (totalRelations === 0) {
         const noRelationsMsg = L.relations_none || "No relations found in this changeset";
-        relationList.innerHTML = `<li class="empty-message">${noRelationsMsg}</li>`;
+        UI.empty(relationList, noRelationsMsg);
         summary.textContent = L.relations_none_found || "No relations found";
         return;
     }
@@ -58,7 +59,7 @@ function loadRelations(relations, changesetId) {
     
     summary.textContent = localizedSummary;
     
-    relationList.innerHTML = '';
+    relationList.replaceChildren();
     
     // Show created relations first
     relations.created.forEach(relation => {
@@ -133,6 +134,6 @@ setTimeout(() => {
     const relationList = document.getElementById('relationList');
     if (relationList && relationList.children.length === 0) {
         const L = relationsLocale || {};
-        relationList.innerHTML = `<li class="empty-message">${L.relations_load_error || "Load error"}</li>`;
+        UI.empty(relationList, L.relations_load_error || "Load error");
     }
 }, 2000);
